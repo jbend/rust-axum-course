@@ -1,0 +1,9 @@
+# Cargo config
+# See: https://doc.rust-lang.org/cargo/reference/config.html
+
+# Environmaent variables
+[env]
+
+# Scope down tracing
+RUST_LOG="rust_axum_course=debug"
+# PORT="8080"
