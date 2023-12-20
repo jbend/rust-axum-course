@@ -9,6 +9,7 @@ pub type Result<T> = core::result::Result<T, Error>;
 #[serde(tag = "type", content = "data")]
 pub enum Error {
     LoginFail,
+    ConfigMissingEnv(&'static str),
 
     // -- Auth Errors
     AuthFailedNoAuthTokenCookie, 
@@ -64,7 +65,7 @@ impl Error {
                 (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS)
             }
             // -- Fallback
-            _=> (
+            _ => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 ClientError::SERVICE_ERROR,
             )

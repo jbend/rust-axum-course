@@ -42,11 +42,9 @@ pub async fn log_request(
         error_type,
         error_data,
     };
-    
-    info!("log_line \n{}", json!(log_line));
+    // info!("log_line \n{}", json!(log_line));
 
     Ok(())
-
 }
 
 #[skip_serializing_none]
@@ -66,7 +64,5 @@ struct RequestLogLine {
     client_error_type: Option<String>,
     error_type: Option<String>,
     error_data: Option<Value>,
-
-
 }
 
