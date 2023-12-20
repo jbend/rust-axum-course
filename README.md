@@ -23,6 +23,22 @@ cargo watch -q -c -w examples/ -x "run --example quick_dev"
 
 Create a local Postgres DB using Docker
 
+```shell
+# Start postgresql server docker image:
+docker run --rm --name pg -p 5432:5432 \
+   -e POSTGRES_PASSWORD=welcome \
+   postgres:15
+
+# (optional) To have a psql terminal on pg. 
+# In another terminal (tab) run psql:
+docker exec -it -u postgres pg psql
+
+# (optional) For pg to print all sql statements.
+# In psql command line started above.
+ALTER DATABASE postgres SET log_statement = 'all';
+```
+
+
 ```sh
 # Terminal 1 - start postgresql original 
 docker run --rm -p 5432:5432 -e "POSTGRES_PASSWORD=postgres" --name pg postgres:14
