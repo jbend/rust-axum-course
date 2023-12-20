@@ -1,5 +1,6 @@
 #![allow(unused)]
 
+mod config;
 mod ctx;
 mod error;
 mod log;
@@ -7,9 +8,11 @@ mod model;
 mod web;
 
 pub use self::error::{Error, Result};
+pub use config::config;
 
 use crate::log::log_request;
 use crate::model::ModelController;
+use crate::web::{routes_static};
 
 use std::net::SocketAddr;
 use axum::{Router, Json};
@@ -25,7 +28,8 @@ use serde_json::json;
 use tokio::net::TcpListener;
 use tower_cookies::CookieManagerLayer;
 use tower_http::services::ServeDir;
-use tracing::{info, debug};
+use tracing::{info, debug, trace};
+use tracing::error;
 use tracing_subscriber::{fmt, EnvFilter};
 
 #[tokio::main]
@@ -39,7 +43,7 @@ async fn main() -> Result<()> {
 
     let mc = ModelController::new().await?;
 
-    let routes_apis = web:: routes_vendors::routes(mc.clone())
+    let routes_apis = web::routes_vendors::routes(mc.clone())
         .route_layer(middleware::from_fn(web::mw_auth::mw_require_auth));
 
     let routes_all = Router::new()
@@ -52,7 +56,7 @@ async fn main() -> Result<()> {
             web::mw_auth::mw_ctx_resolver,
         )) 
         .layer(CookieManagerLayer::new())
-        .fallback_service(routes_static());
+        .fallback_service(routes_static::serve_dir());
 
     let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap(); 
     info!("{:<12} on {:?}", "LISTENING", listener.local_addr());
@@ -71,7 +75,7 @@ async fn main_response_mapper(
     uri: Uri,
     req_method: Method,
     res: Response) -> Response {
-    debug!("{:<12} - main_response_mapper", "RESP_MAPPER");
+    trace!("{:<12} - main_response_mapper", "RESP_MAPPER");
 
     let uuid = uuid::Uuid::new_v4();
 
@@ -87,7 +91,7 @@ async fn main_response_mapper(
                     "req_uuid": uuid.to_string(),
                 }
             });
-            debug!("client_error-body: {:?}", client_error_body);
+            error!("client_error-body: {:?}", client_error_body);
 
             (*status_code, Json(client_error_body)).into_response()
         });
@@ -96,10 +100,6 @@ async fn main_response_mapper(
 
     debug!("");
     error_response.unwrap_or(res)
-}
-
-fn routes_static() -> Router {
-    Router::new().nest_service("/", get_service(ServeDir::new("./")))
 }
 
 // Routes Hello

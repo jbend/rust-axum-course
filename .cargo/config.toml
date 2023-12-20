@@ -5,5 +5,15 @@
 [env]
 
 # Scope down tracing
-RUST_LOG="rust_axum_course=debug"
-# PORT="8080"
+RUST_LOG="rust_axum_course=trace"
+PORT="8080"
+
+# -- Service Environment Variables
+# IMPORTANT: 
+#   For Cargo commands only
+#   For deployed env, should be managed by container
+#   (e.g., Kubernetes).
+
+## -- CinfigMap
+
+SERVICE_WEB_FOLDER="http-root/"
