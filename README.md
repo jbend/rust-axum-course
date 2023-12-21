@@ -19,6 +19,16 @@ cargo watch -q -c -w examples/ -x "run --example quick_dev"
 
 ```
 
+## Test
+
+```sh
+cargo watch -q -c -x "test -- --nocapture"
+
+# Specific test with filter.
+cargo watch -q -c -x "test model::task::tests::test_create -- --nocapture"
+```
+
+
 ## Database 
 
 Create a local Postgres DB using Docker

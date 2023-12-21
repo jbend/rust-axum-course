@@ -13,7 +13,8 @@ pub use self::error::{Error, Result};
 pub use config::config;
 
 use crate::log::log_request;
-use crate::model::ModelController;
+// use crate::model::ModelController;
+use crate::model::ModelManager;
 use crate::web::{routes_static};
 
 use std::net::SocketAddr;
@@ -46,20 +47,21 @@ async fn main() -> Result<()> {
     // -- FOR DEV ONLY
     _dev_utils::init_dev().await;
 
-    let mc = ModelController::new().await?;
+    // let mc = ModelController::new().await?;
+    // let mm = ModelManager::new().await?;
 
-    let routes_apis = web::routes_vendors::routes(mc.clone())
-        .route_layer(middleware::from_fn(web::mw_auth::mw_require_auth));
+    // let routes_apis = web::routes_vendors::routes(mc.clone())
+    //     .route_layer(middleware::from_fn(web::mw_auth::mw_require_auth));
 
     let routes_all = Router::new()
         .merge(routes_hello())
         .merge(web::routes_login::routes())
-        .nest("/api", routes_apis)
+        // .nest("/api", routes_apis)
         .layer(middleware::map_response(main_response_mapper))
-        .layer(middleware::from_fn_with_state(
-            mc.clone(),
-            web::mw_auth::mw_ctx_resolver,
-        )) 
+        // .layer(middleware::from_fn_with_state(
+        //     mc.clone(),
+        //     web::mw_auth::mw_ctx_resolver,
+        // )) 
         .layer(CookieManagerLayer::new())
         .fallback_service(routes_static::serve_dir());
 

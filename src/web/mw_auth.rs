@@ -1,5 +1,5 @@
 use crate::ctx::Ctx;
-use crate::model::ModelController;
+//use crate::model::ModelController;
 use crate::web::AUTH_TOKEN;
 use crate::{Error, Result};
 use async_trait::async_trait;
@@ -27,32 +27,32 @@ pub async fn mw_require_auth(
 }
 
 pub async fn mw_ctx_resolver(
-    _mc: State<ModelController>,
+    //_mc: State<ModelController>,
     cookies: Cookies,
     mut req: Request<Body>,
     next: Next,
 ) -> Result<Response> {
     trace!("{:<12} - mw_ctx_resolver", "MIDDLEWARE");
 
-    let auth_token = cookies.get(AUTH_TOKEN).map(|c| c.value().to_string());
+    // let auth_token = cookies.get(AUTH_TOKEN).map(|c| c.value().to_string());
 
-    let result_ctx = match auth_token
-        .ok_or(Error::AuthFailedNoAuthTokenCookie)
-        .and_then(parse_token)
-    {
-        Ok((user_id, exp, sign)) => {
-            //TODO: Token component validation
-            Ok(Ctx::new(user_id))
-        }
-        Err(e) => Err(e),
-    };
+    // let result_ctx = match auth_token
+    //     .ok_or(Error::AuthFailedNoAuthTokenCookie)
+    //     .and_then(parse_token)
+    // {
+    //     Ok((user_id, exp, sign)) => {
+    //         //TODO: Token component validation
+    //         Ok(Ctx::new(user_id))
+    //     }
+    //     Err(e) => Err(e),
+    // };
 
-    if result_ctx.is_err()
-        && !matches!(result_ctx, Err(Error::AuthFailedNoAuthTokenCookie)) 
-    {
-        cookies.remove(Cookie::from(AUTH_TOKEN));        
-    }
-    req.extensions_mut().insert(result_ctx);
+    // if result_ctx.is_err()
+    //     && !matches!(result_ctx, Err(Error::AuthFailedNoAuthTokenCookie)) 
+    // {
+    //     cookies.remove(Cookie::from(AUTH_TOKEN));        
+    // }
+    // req.extensions_mut().insert(result_ctx);
 
 
     Ok(next.run(req).await)
