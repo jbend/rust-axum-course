@@ -15,7 +15,14 @@ PORT="8080"
 #   (e.g., Kubernetes).
 
 ## -- Secrets
+# Keys and passwords below are for localhopst dev ONLY.
 SERVICE_DB_URL="postgres://app_user:dev_only_pwd@localhost/app_db"
+
+SERVICE_PWD_KEY="easIB0djr6B5YrCVcl2wG60_uBdSocVsWRqNHw0_4Ef1pl5hwQ5pE_LZyohRP9DRXsQScGZn_CSdEAdguyt6jg"
+
+SERVICE_TOKEN_KEY="UhueKklpER9LZaZNWKkD9S_1q8M3bdBD2gpB9bt_GWUIQNN2PcAgoPSzd88sAb68XkL-w5b-yV6wnA9msZtILg"
+SERVICE_TOKEN_DURATION_SEC="1800" # 30 minutes
+
 
 
 ## -- CinfigMap

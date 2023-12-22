@@ -3,7 +3,7 @@ pub use self::error::{Error, Result};
 
 #[derive(Clone, Debug)]
 pub struct Ctx {
-    pub user_id: u64,
+    pub user_id: i64,
 }
 
 impl Ctx {
@@ -11,7 +11,7 @@ impl Ctx {
         Self { user_id: 0 }
     }
 
-    pub fn new(user_id: u64) -> Result<Self> {
+    pub fn new(user_id: i64) -> Result<Self> {
         if user_id == 0 {
             Err(Error::CtxCannotNewRootCtx)
         } else {
@@ -21,7 +21,7 @@ impl Ctx {
 }
 
 impl Ctx {
-    pub fn user_id(&self) -> u64 {
+    pub fn user_id(&self) -> i64 {
         self.user_id
     }
 }

@@ -1,4 +1,9 @@
-use crate::{Error, Result, web};
+use crate::crypt::{pwd, EncryptContent};
+use crate::ctx::Ctx;
+use crate::model::ModelManager;
+use crate::model::user::{UserForLogin, UserBmc};
+use crate::web::{self, Error, Result};
+use axum::extract::State;
 use axum::routing::post;
 use axum::{Json, Router};
 use serde::Deserialize;
@@ -6,17 +11,45 @@ use serde_json::{json, Value};
 use tower_cookies::{Cookie, Cookies};
 use tracing::{info, debug};
 
-pub fn routes() -> Router {
-    Router::new().route("/api/login", post(api_login))
+pub fn routes(mm: ModelManager) -> Router {
+    Router::new()
+        .route("/api/login", post(api_login_handler))
+        .with_state(mm)
 }
 
-async fn api_login(cookies: Cookies, payload: Json<LoginPayload>) -> Result<Json<Value>> {
+async fn api_login_handler(
+    State(mm): State<ModelManager>,
+    cookies: Cookies, 
+    Json(payload): Json<LoginPayload>
+) -> Result<Json<Value>> {
     debug!("{:<12} - api_login - {payload:?}", "HANDLER");
 
-    if payload.username != "demo1" || payload.pwd != "welcome" {
-        return Err(Error::LoginFail);
-    }
+    let LoginPayload {
+        username,
+        pwd: pwd_clear,
+    } = payload;
+    let root_ctx = Ctx::root_ctx();
 
+    // -- Get the user
+    let user: UserForLogin = UserBmc::first_by_username(&root_ctx, &mm, &username)
+        .await?
+        .ok_or(Error::LoginFailUsernameNotFound)?;
+    let user_id = user.id;
+
+    // -- Validate the password
+    let Some(pwd) = user.pwd else {
+        return Err(Error::LoginFailUserHasNoPwd { user_id })
+    };
+
+    pwd::validate_pwd(
+        &EncryptContent {
+            salt: user.pwd_salt.to_string(),
+            content: pwd_clear.clone(),
+        },
+        &pwd,
+    )
+    .map_err(|_| Error::LoginFailPwdNotMatching { user_id })?;
+ 
     // FIXME: Implement auth token authentication
     cookies.add(Cookie::new(web::AUTH_TOKEN, "user-1.exp.sign"));
 

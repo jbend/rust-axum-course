@@ -3,6 +3,8 @@ use std::{time::Duration, fs, path::PathBuf};
 use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
 use tracing::info;
 
+use crate::{model::{ModelManager, user::{User, UserBmc}}, ctx::Ctx};
+
 type Db = Pool<Postgres>;
 
 // NOTE: Hardcode to prevent deployed system update
@@ -11,6 +13,8 @@ const PG_DEV_APP_URL: &str = "postgres://app_user:dev_only_pwd@localhost/app_db"
 
 const SQL_RECREATE_DB: &str = "sql/dev_initial/00-recreate-db.sql";
 const SQL_DIR: &str = "sql/dev_initial";
+
+const DEMO_PWD: &str = "welcome";
 
 pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
 
@@ -36,6 +40,18 @@ pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
     }
+
+    // -- init model layer
+    let mm = ModelManager::new().await?;
+    let ctx = Ctx::root_ctx();
+
+    // -- Set demo1 pwd
+    let demo1_user: User = UserBmc::first_by_username(&ctx, &mm, "demo1")
+        .await?
+        .unwrap();
+    UserBmc::update_pwd(&ctx, &mm, demo1_user.id, DEMO_PWD).await?;
+    info!("{:<12} - {demo1_user:?}", "FOR-DEV_ONLY");
+
     Ok(())
 }
 

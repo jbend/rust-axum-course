@@ -1,6 +1,6 @@
 # Rust / Axum course
 
-by [Jeremy Chone](https://www.youtube.com/@JeremyChone/featured) 
+base on the work of [Jeremy Chone](https://www.youtube.com/@JeremyChone/featured) 
 
 Rust web app with warp, sqlx, Postgres
 

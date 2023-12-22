@@ -2,6 +2,7 @@ mod base;
 mod error;
 mod store;
 pub mod vendor;
+pub mod user;
 
 pub use self::error::{Error, Result};
 
@@ -17,7 +18,6 @@ impl ModelManager {
     // Constructor
     pub async fn new() -> Result<Self> {
         let db = new_db_pool().await?;
-
         Ok(ModelManager{ db })
     }
 
